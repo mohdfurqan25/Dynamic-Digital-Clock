@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Clock</title>
+    
+    <style>
+        /* CSS STYLES */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            transition: background-color 0.4s ease, color 0.4s ease;
+            min-height: 100vh;
+            background-color: #0f172a; /* Default Dark Theme */
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navbar */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo { font-weight: 800; font-size: 1.2rem; }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 50px;
+        }
+
+        #bgPicker {
+            cursor: pointer;
+            border: none;
+            width: 25px;
+            height: 25px;
+            background: none;
+        }
+
+        /* Clock & Date Container */
+        .hero {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        #clock {
+            font-size: 6rem;
+            font-weight: 700;
+            margin-bottom: 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #date {
+            font-size: 1.5rem;
+            opacity: 0.8;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .hex-label {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            padding: 5px 12px;
+            border: 1px solid currentColor;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">DIGITAL.LAB</div>
+        <div class="controls">
+            <span>BG Color:</span>
+            <input type="color" id="bgPicker" value="#0f172a">
+        </div>
+    </nav>
+
+    <main class="hero">
+        <div id="date">Loading Date...</div>
+        <div id="clock">00:00:00 AM</div>
+        <div class="hex-label" id="hexDisplay">#0F172A</div>
+    </main>
+
+    <script>
+        // --- CLOCK LOGIC ---
+        function updateTime() {
+            const now = new Date();
+            
+            // 1. Format Time (12-hour format)
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+
+            hours = hours % 12;
+            hours = hours ? hours : 12; // The hour '0' should be '12'
+            const formattedHours = String(hours).padStart(2, '0');
+
+            document.getElementById('clock').innerHTML = 
+                `${formattedHours}:${minutes}:${seconds} <span style="font-size: 2rem">${ampm}</span>`;
+
+            // 2. Format Date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date').innerText = now.toLocaleDateString('en-US', options);
+        }
+
+        // Run clock every second
+        setInterval(updateTime, 1000);
+        updateTime(); // Run immediately on load
+
+        // --- BACKGROUND PICKER LOGIC ---
+        const picker = document.getElementById('bgPicker');
+        const hexDisplay = document.getElementById('hexDisplay');
+
+        picker.addEventListener('input', (e) => {
+            const color = e.target.value;
+            document.body.style.backgroundColor = color;
+            hexDisplay.innerText = color.toUpperCase();
+
+            // Contrast check for text readability
+            const r = parseInt(color.substr(1, 2), 16);
+            const g = parseInt(color.substr(3, 2), 16);
+            const b = parseInt(color.substr(5, 2), 16);
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            document.body.style.color = brightness > 128 ? '#1a1a1a' : '#ffffff';
+        });
+    </script>
+</body>
+</html>
